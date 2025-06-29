@@ -1,0 +1,143 @@
+{
+	"info": {
+		"_postman_id": "067d1f09-48a2-4577-bee9-23398938ac71",
+		"name": "cinema-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29946352"
+	},
+	"item": [
+		{
+			"name": "/cinema-service/v1/api/movies",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "/cinema-service/v1/api/movies/id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/cinema-service/v1/api/movies/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cinema-service",
+						"v1",
+						"api",
+						"movies",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/cinema-service/v1/api/movies",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"New\",\n    \"description\": \"A new cool movie\",\n    \"duration\": 100,\n    \"posterUrl\": \"https://www.archdaily.com/872754/how-architecture-speaks-through-cinema.jpg\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/cinema-service/v1/api/movies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cinema-service",
+						"v1",
+						"api",
+						"movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/cinema-service/v1/api/movies/id",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "user-id",
+						"value": "2",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Inception Updated\",\n    \"description\": \"Updated description\",\n    \"duration\": 150,\n    \"posterUrl\": \"http://example.com/inception-updated.jpg\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/cinema-service/v1/api/movies/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cinema-service",
+						"v1",
+						"api",
+						"movies",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/cinema-service/v1/api/movies/id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "user-id",
+						"value": "2",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/cinema-service/v1/api/movies/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cinema-service",
+						"v1",
+						"api",
+						"movies",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
