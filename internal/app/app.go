@@ -54,4 +54,5 @@ func (app *MyApp) initDB() {
 
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Movie{})
+	db.AutoMigrate(&models.Hall{}, &models.Session{})
 }

@@ -18,6 +18,11 @@ func SetRoutes(router *gin.Engine, handler *factories.HandlersFactory) {
 		})
 	}
 
+	auth := router.Group("/auth")
+	{
+		auth.POST("/register", handler.AuthController.Register())
+	}
+
 	//первая версия CRUD для проекта
 	v1 := router.Group("/cinema-service/v1/api")
 	{
@@ -26,5 +31,18 @@ func SetRoutes(router *gin.Engine, handler *factories.HandlersFactory) {
 		v1.DELETE("movies/:id", handler.MovieController.DeleteByID())
 		v1.POST("movies", handler.MovieController.CreateMovie())
 		v1.PUT("movies/:id", handler.MovieController.UpdateMovie())
+
+		v1.GET("halls", handler.HallController.GetAllHalls())
+		v1.GET("halls/:id", handler.HallController.GetHallsByID())
+		v1.DELETE("halls/:id", handler.HallController.DeleteByID())
+		v1.POST("halls", handler.HallController.CreateHall())
+		v1.PUT("halls/:id", handler.HallController.UpdateHAll())
+
+		v1.GET("sessions", handler.SessionController.GetAllSessions())
+		v1.GET("sessions/:id", handler.SessionController.GetSessionByID())
+		v1.POST("sessions", handler.SessionController.CreateSession())
+		v1.PUT("sessions/:id", handler.SessionController.UpdateSession())
+		v1.DELETE("sessions/:id", handler.SessionController.DeleteSession())
+
 	}
 }

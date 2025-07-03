@@ -25,3 +25,7 @@ func (repo *UserRepository) CheckIsAdmin(id int) bool {
 
 	return true
 }
+
+func (repo *UserRepository) CreateUser(user *models.User) error {
+	return repo.db.Create(user).Error
+}
