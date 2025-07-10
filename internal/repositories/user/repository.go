@@ -29,3 +29,11 @@ func (repo *UserRepository) CheckIsAdmin(id int) bool {
 func (repo *UserRepository) CreateUser(user *models.User) error {
 	return repo.db.Create(user).Error
 }
+
+func (repo *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	if err := repo.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

@@ -3,6 +3,7 @@ package routes
 import (
 	_ "cinema-service/docs"
 	"cinema-service/internal/factories"
+	"cinema-service/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -21,10 +22,13 @@ func SetRoutes(router *gin.Engine, handler *factories.HandlersFactory) {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/register", handler.AuthController.Register())
+		auth.POST("/login", handler.AuthController.Login())
+		auth.POST("/refresh", handler.AuthController.Refresh())
 	}
 
 	//первая версия CRUD для проекта
 	v1 := router.Group("/cinema-service/v1/api")
+	v1.Use(middleware.AuthMiddleware())
 	{
 		v1.GET("movies", handler.MovieController.GetAllMovies())
 		v1.GET("movies/:id", handler.MovieController.GetMovieByID())
