@@ -48,5 +48,7 @@ func SetRoutes(router *gin.Engine, handler *factories.HandlersFactory) {
 		v1.PUT("sessions/:id", handler.SessionController.UpdateSession())
 		v1.DELETE("sessions/:id", handler.SessionController.DeleteSession())
 
+		v1.GET("bookings", handler.BookingController.GetAllBooking())
+		v1.POST("bookings", handler.BookingController.CreateBooking())
 	}
 }

@@ -52,5 +52,5 @@ func (app *MyApp) initDB() {
 
 	app.DB = db
 
-	db.AutoMigrate(&models.User{}, &models.Movie{}, &models.Hall{}, &models.Session{}, &models.RefreshToken{})
+	db.AutoMigrate(&models.User{}, &models.Movie{}, &models.Hall{}, &models.Session{}, &models.RefreshToken{}, &models.Booking{})
 }
