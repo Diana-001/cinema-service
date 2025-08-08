@@ -2,8 +2,7 @@ package halls
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/hall"
-	"cinema-service/internal/repositories/user"
+	"cinema-service/internal/repositories"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -11,11 +10,11 @@ import (
 )
 
 type HallController struct {
-	HallRepository *hall.HallRepository
-	userRepo       *user.UserRepository
+	HallRepository *repositories.HallRepository
+	userRepo       *repositories.UserRepository
 }
 
-func NewHallController(hallRepo *hall.HallRepository, userRepo *user.UserRepository) *HallController {
+func NewHallController(hallRepo *repositories.HallRepository, userRepo *repositories.UserRepository) *HallController {
 	return &HallController{
 		HallRepository: hallRepo,
 		userRepo:       userRepo,

@@ -2,23 +2,20 @@ package factories
 
 import (
 	"cinema-service/internal/controllers/auth"
-	"cinema-service/internal/controllers/halls"
-	"cinema-service/internal/controllers/movie"
-	sessions2 "cinema-service/internal/controllers/sessions"
+	"cinema-service/internal/usecases"
+	"cinema-service/pkg/logger"
 )
 
-func NewHandlersFactory(repoFactory *MySqlRepositoryFactory) *HandlersFactory {
+func NewHandlersFactory(repoFactory *MySqlRepositoryFactory, l logger.Logger) *HandlersFactory {
+	usecase := usecases.New(repoFactory.r, l)
+
+	authController := auth.NewAuthController(usecase, l)
+
 	return &HandlersFactory{
-		MovieController:   movie.NewMovieController(repoFactory.MovieRepo, repoFactory.UserRepo),
-		AuthController:    auth.NewAuthController(repoFactory.UserRepo),
-		HallController:    halls.NewHallController(repoFactory.HallRepo, repoFactory.UserRepo),
-		SessionController: sessions2.NewSessionController(repoFactory.SessionRepo),
+		auth: authController,
 	}
 }
 
 type HandlersFactory struct {
-	MovieController   *movie.MovieController
-	AuthController    *auth.AuthController
-	HallController    *halls.HallController
-	SessionController *sessions2.SessionController
+	auth auth.AuthController
 }

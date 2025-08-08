@@ -2,8 +2,7 @@ package movie
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/movie"
-	"cinema-service/internal/repositories/user"
+	"cinema-service/internal/repositories"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -11,11 +10,11 @@ import (
 )
 
 type MovieController struct {
-	movieRepo *movie.MovieRepository
-	userRepo  *user.UserRepository
+	movieRepo *repositories.MovieRepository
+	userRepo  *repositories.UserRepository
 }
 
-func NewMovieController(repo *movie.MovieRepository, userRepo *user.UserRepository) *MovieController {
+func NewMovieController(repo *repositories.MovieRepository, userRepo *repositories.UserRepository) *MovieController {
 	return &MovieController{
 		movieRepo: repo,
 		userRepo:  userRepo,

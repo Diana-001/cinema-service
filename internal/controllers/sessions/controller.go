@@ -2,17 +2,17 @@ package sessions
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/sessions"
+	"cinema-service/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 type SessionController struct {
-	SessionRepository *sessions.SessionRepository
+	SessionRepository *repositories.SessionRepository
 }
 
-func NewSessionController(sessionRepo *sessions.SessionRepository) *SessionController {
+func NewSessionController(sessionRepo *repositories.SessionRepository) *SessionController {
 	return &SessionController{
 		SessionRepository: sessionRepo,
 	}

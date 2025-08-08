@@ -1,19 +1,18 @@
-package sessions
+package repositories
 
 import (
 	"cinema-service/internal/models"
-	"gorm.io/gorm"
 )
 
-type SessionRepository struct {
-	db *gorm.DB
+type SessionRepository interface {
+	GetAllSessions() ([]models.Session, error)
+	GetSessionByID(id int) (*models.Session, error)
+	CreateSession(session models.Session) (bool, error)
+	UpdateSession(id int, body models.Session) (bool, error)
+	DeleteSessionByID(id int) (bool, error)
 }
 
-func NewSessionRepository(db *gorm.DB) *SessionRepository {
-	return &SessionRepository{db: db}
-}
-
-func (repo *SessionRepository) GetAllSessions() ([]models.Session, error) {
+func (repo *RepositoryImpl) GetAllSessions() ([]models.Session, error) {
 	var sessions []models.Session
 	if err := repo.db.Find(&sessions).Error; err != nil {
 		return nil, err
@@ -21,7 +20,7 @@ func (repo *SessionRepository) GetAllSessions() ([]models.Session, error) {
 	return sessions, nil
 }
 
-func (repo *SessionRepository) GetSessionByID(id int) (*models.Session, error) {
+func (repo *RepositoryImpl) GetSessionByID(id int) (*models.Session, error) {
 	var session models.Session
 	if err := repo.db.First(&session, id).Error; err != nil {
 		return nil, err
@@ -29,14 +28,14 @@ func (repo *SessionRepository) GetSessionByID(id int) (*models.Session, error) {
 	return &session, nil
 }
 
-func (repo *SessionRepository) CreateSession(session models.Session) (bool, error) {
+func (repo *RepositoryImpl) CreateSession(session models.Session) (bool, error) {
 	if err := repo.db.Create(&session).Error; err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (repo *SessionRepository) UpdateSession(id int, body models.Session) (bool, error) {
+func (repo *RepositoryImpl) UpdateSession(id int, body models.Session) (bool, error) {
 	var session models.Session
 	if err := repo.db.First(&session, id).Error; err != nil {
 		return false, err
@@ -54,7 +53,7 @@ func (repo *SessionRepository) UpdateSession(id int, body models.Session) (bool,
 	return true, nil
 }
 
-func (repo *SessionRepository) DeleteByID(id int) (bool, error) {
+func (repo *RepositoryImpl) DeleteSessionByID(id int) (bool, error) {
 	if err := repo.db.Delete(&models.Session{}, id).Error; err != nil {
 		return false, err
 	}

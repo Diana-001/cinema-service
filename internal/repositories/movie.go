@@ -1,19 +1,18 @@
-package movie
+package repositories
 
 import (
 	"cinema-service/internal/models"
-	"gorm.io/gorm"
 )
 
-type MovieRepository struct {
-	db *gorm.DB
+type MovieRepository interface {
+	GetAll() ([]models.Movie, error)
+	GetMovieByID(id int) (models.Movie, error)
+	DeleteMovieByID(id int) (bool, error)
+	CreateMovie(body models.Movie) (bool, error)
+	UpdateMovie(id int, body models.Movie) (bool, error)
 }
 
-func NewMovieRepository(db *gorm.DB) *MovieRepository {
-	return &MovieRepository{db: db}
-}
-
-func (repo *MovieRepository) GetAll() ([]models.Movie, error) {
+func (repo *RepositoryImpl) GetAll() ([]models.Movie, error) {
 	var movies []models.Movie
 	if err := repo.db.Find(&movies).Error; err != nil {
 		return nil, err
@@ -21,7 +20,7 @@ func (repo *MovieRepository) GetAll() ([]models.Movie, error) {
 	return movies, nil
 }
 
-func (repo *MovieRepository) GetMovieByID(id int) (models.Movie, error) {
+func (repo *RepositoryImpl) GetMovieByID(id int) (models.Movie, error) {
 	var movie models.Movie
 	if err := repo.db.First(&movie, id).Error; err != nil {
 		return models.Movie{}, err
@@ -29,21 +28,21 @@ func (repo *MovieRepository) GetMovieByID(id int) (models.Movie, error) {
 	return movie, nil
 }
 
-func (repo *MovieRepository) DeleteByID(id int) (bool, error) {
+func (repo *RepositoryImpl) DeleteMovieByID(id int) (bool, error) {
 	if err := repo.db.Delete(&models.Movie{}, id).Error; err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (repo *MovieRepository) CreateMovie(body models.Movie) (bool, error) {
+func (repo *RepositoryImpl) CreateMovie(body models.Movie) (bool, error) {
 	if err := repo.db.Create(&body).Error; err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (repo *MovieRepository) UpdateMovie(id int, body models.Movie) (bool, error) {
+func (repo *RepositoryImpl) UpdateMovie(id int, body models.Movie) (bool, error) {
 	var movie models.Movie
 
 	// Найти фильм по id
