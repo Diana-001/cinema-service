@@ -2,7 +2,6 @@ package auth
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories"
 	"cinema-service/internal/usecases"
 	"cinema-service/internal/utils"
 	"cinema-service/pkg/logger"
@@ -72,7 +71,7 @@ func (a *AuthControllerImpl) Login() gin.HandlerFunc {
 			return
 		}
 
-		user, err := a.userRepo.GetUserByEmail(req.Email) // userRepo — экземпляр UserRepositoryImpl
+		user, err := a.usecase.GetUserByEmail(req.Email) // userRepo — экземпляр UserRepositoryImpl
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 			return

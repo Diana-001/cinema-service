@@ -5,9 +5,15 @@ import (
 	"cinema-service/pkg/logger"
 )
 
+var _ Usecase = (*UsecaseImpl)(nil)
+
 type (
 	// todo: сделай по аналогии с репозиториями
 	Usecase interface {
+		AuthUsecase
+		MovieUsecase
+		SessionUsecase
+		HallUsecase
 	}
 
 	UsecaseImpl struct {
