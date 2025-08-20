@@ -1,25 +1,18 @@
 package factories
 
 import (
-	"cinema-service/internal/repositories/hall"
-	"cinema-service/internal/repositories/movie"
-	"cinema-service/internal/repositories/sessions"
-	"cinema-service/internal/repositories/user"
+	"cinema-service/internal/repositories"
+	"cinema-service/pkg/logger"
 	"gorm.io/gorm"
 )
 
-func NewSqlRepositoryFactory(dbClient *gorm.DB) *MySqlRepositoryFactory {
+func NewSqlRepositoryFactory(dbClient *gorm.DB, l logger.Logger) *MySqlRepositoryFactory {
+	repo := repositories.NewRepository(dbClient, l)
 	return &MySqlRepositoryFactory{
-		MovieRepo:   movie.NewMovieRepository(dbClient),
-		UserRepo:    user.NewUserRepository(dbClient),
-		HallRepo:    hall.NewHallRepository(dbClient),
-		SessionRepo: sessions.NewSessionRepository(dbClient),
+		r: repo,
 	}
 }
 
 type MySqlRepositoryFactory struct {
-	MovieRepo   *movie.MovieRepository
-	UserRepo    *user.UserRepository
-	HallRepo    *hall.HallRepository
-	SessionRepo *sessions.SessionRepository
+	r repositories.Repository
 }

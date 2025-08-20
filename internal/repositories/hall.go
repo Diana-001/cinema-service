@@ -1,21 +1,18 @@
-package hall
+package repositories
 
 import (
 	"cinema-service/internal/models"
-	"gorm.io/gorm"
 )
 
-type HallRepository struct {
-	db *gorm.DB
+type HallRepository interface {
+	GetAllHalls() ([]models.Hall, error)
+	GetHallByID(id int) (models.Hall, error)
+	DeleteHallByID(id int) (bool, error)
+	CreateHall(body models.Hall) (bool, error)
+	UpdateHall(id int, body models.Hall) (bool, error)
 }
 
-func NewHallRepository(db *gorm.DB) *HallRepository {
-	return &HallRepository{
-		db: db,
-	}
-}
-
-func (repo *HallRepository) GetAllHalls() ([]models.Hall, error) {
+func (repo *RepositoryImpl) GetAllHalls() ([]models.Hall, error) {
 	var halls []models.Hall
 	if err := repo.db.Find(&halls).Error; err != nil {
 		return nil, err
@@ -23,7 +20,7 @@ func (repo *HallRepository) GetAllHalls() ([]models.Hall, error) {
 	return halls, nil
 }
 
-func (repo *HallRepository) GetHallByID(id int) (models.Hall, error) {
+func (repo *RepositoryImpl) GetHallByID(id int) (models.Hall, error) {
 	var hall models.Hall
 	if err := repo.db.First(&hall, id).Error; err != nil {
 		return models.Hall{}, err
@@ -31,21 +28,21 @@ func (repo *HallRepository) GetHallByID(id int) (models.Hall, error) {
 	return hall, nil
 }
 
-func (repo *HallRepository) DeleteByID(id int) (bool, error) {
+func (repo *RepositoryImpl) DeleteHallByID(id int) (bool, error) {
 	if err := repo.db.Delete(&models.Movie{}, id).Error; err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (repo *HallRepository) CreateHall(body models.Hall) (bool, error) {
+func (repo *RepositoryImpl) CreateHall(body models.Hall) (bool, error) {
 	if err := repo.db.Create(&body).Error; err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (repo *HallRepository) UpdateHall(id int, body models.Hall) (bool, error) {
+func (repo *RepositoryImpl) UpdateHall(id int, body models.Hall) (bool, error) {
 	var hall models.Hall
 
 	// Найти зал по id

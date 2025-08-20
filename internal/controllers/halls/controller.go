@@ -2,23 +2,31 @@ package halls
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/hall"
-	"cinema-service/internal/repositories/user"
+	"cinema-service/internal/usecases"
+	"cinema-service/pkg/logger"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-type HallController struct {
-	HallRepository *hall.HallRepository
-	userRepo       *user.UserRepository
+type HallController interface {
+	GetAllHalls() gin.HandlerFunc
+	GetHallsByID() gin.HandlerFunc
+	DeleteByID() gin.HandlerFunc
+	CreateHall() gin.HandlerFunc
+	UpdateHAll() gin.HandlerFunc
 }
 
-func NewHallController(hallRepo *hall.HallRepository, userRepo *user.UserRepository) *HallController {
-	return &HallController{
-		HallRepository: hallRepo,
-		userRepo:       userRepo,
+type HallControllerImpl struct {
+	usecase usecases.Usecase
+	l       *logger.Logger
+}
+
+func NewHallController(u usecases.Usecase, l logger.Logger) HallController {
+	return &HallControllerImpl{
+		usecase: u,
+		l:       &l,
 	}
 }
 
@@ -30,9 +38,9 @@ func NewHallController(hallRepo *hall.HallRepository, userRepo *user.UserReposit
 // @Success      200  {array}  models.Hall
 // @Failure      500  {object}  map[string]string
 // @Router       /cinema-service/v1/api/halls [get]
-func (h *HallController) GetAllHalls() gin.HandlerFunc {
+func (h *HallControllerImpl) GetAllHalls() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		halls, err := h.HallRepository.GetAllHalls()
+		halls, err := h.usecase.GetAllHalls()
 		if err != nil {
 			// Возвращаем 500 и сообщение об ошибке клиенту
 			ctx.JSON(500, gin.H{"error": "Ошибка при получении всех фильмов"})
@@ -55,7 +63,7 @@ func (h *HallController) GetAllHalls() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /cinema-service/v1/api/halls/{id} [get]
-func (h *HallController) GetHallsByID() gin.HandlerFunc {
+func (h *HallControllerImpl) GetHallsByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Получаем id из параметра запроса
 		hallIDStr := ctx.Param("id")
@@ -67,7 +75,7 @@ func (h *HallController) GetHallsByID() gin.HandlerFunc {
 			return
 		}
 
-		data, err := h.HallRepository.GetHallByID(hallID)
+		data, err := h.usecase.GetHallByID(hallID)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при получении фильма с ID %d", hallID)})
 			return
@@ -87,7 +95,7 @@ func (h *HallController) GetHallsByID() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /cinema-service/v1/api/halls/{id} [delete]
-func (h *HallController) DeleteByID() gin.HandlerFunc {
+func (h *HallControllerImpl) DeleteByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Получаем id из параметра запроса
 		hallIDStr := ctx.Param("id")
@@ -99,7 +107,7 @@ func (h *HallController) DeleteByID() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := h.HallRepository.DeleteByID(hallID)
+		isSuccess, err := h.usecase.DeleteHallByID(hallID)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при удалений фильма с ID %d", hallID)})
 			return
@@ -120,7 +128,7 @@ func (h *HallController) DeleteByID() gin.HandlerFunc {
 // @Failure      400   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
 // @Router       /cinema-service/v1/api/halls [post]
-func (h *HallController) CreateHall() gin.HandlerFunc {
+func (h *HallControllerImpl) CreateHall() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var input models.Hall
 
@@ -129,7 +137,7 @@ func (h *HallController) CreateHall() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := h.HallRepository.CreateHall(input)
+		isSuccess, err := h.usecase.CreateHall(input)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
 			return
@@ -153,7 +161,7 @@ func (h *HallController) CreateHall() gin.HandlerFunc {
 // @Failure      403      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /cinema-service/v1/api/halls/{id} [put]
-func (h *HallController) UpdateHAll() gin.HandlerFunc {
+func (h *HallControllerImpl) UpdateHAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userIdStr := ctx.GetHeader("user-id")
 
@@ -163,7 +171,7 @@ func (h *HallController) UpdateHAll() gin.HandlerFunc {
 			return
 		}
 
-		isAdmin := h.userRepo.CheckIsAdmin(userID)
+		isAdmin := h.usecase.CheckIsAdmin(userID)
 		if isAdmin != true {
 			ctx.JSON(403, gin.H{"error": "Операция не доступна для пользователя"})
 			return
@@ -183,7 +191,7 @@ func (h *HallController) UpdateHAll() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := h.HallRepository.UpdateHall(hallID, input)
+		isSuccess, err := h.usecase.UpdateHall(hallID, input)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
 			return

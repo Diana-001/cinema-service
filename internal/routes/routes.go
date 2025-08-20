@@ -21,9 +21,9 @@ func SetRoutes(router *gin.Engine, handler *factories.HandlersFactory) {
 
 	auth := router.Group("/auth")
 	{
-		auth.POST("/register", handler.AuthController.Register())
-		auth.POST("/login", handler.AuthController.Login())
-		auth.POST("/refresh", handler.AuthController.Refresh())
+		auth.POST("/register", handler.Auth.Register())
+		auth.POST("/login", handler.Auth.Login())
+		auth.POST("/refresh", handler.Auth.Refresh())
 	}
 
 	//первая версия CRUD для проекта

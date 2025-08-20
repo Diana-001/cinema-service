@@ -2,19 +2,30 @@ package sessions
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/sessions"
+	"cinema-service/internal/usecases"
+	"cinema-service/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-type SessionController struct {
-	SessionRepository *sessions.SessionRepository
+type SessionController interface {
+	GetAllSessions() gin.HandlerFunc
+	CreateSession() gin.HandlerFunc
+	GetSessionByID() gin.HandlerFunc
+	UpdateSession() gin.HandlerFunc
+	DeleteSession() gin.HandlerFunc
 }
 
-func NewSessionController(sessionRepo *sessions.SessionRepository) *SessionController {
-	return &SessionController{
-		SessionRepository: sessionRepo,
+type SessionControllerImpl struct {
+	usecase usecases.Usecase
+	l       *logger.Logger
+}
+
+func NewSessionController(u usecases.Usecase, l logger.Logger) SessionController {
+	return &SessionControllerImpl{
+		usecase: u,
+		l:       &l,
 	}
 }
 
@@ -26,9 +37,9 @@ func NewSessionController(sessionRepo *sessions.SessionRepository) *SessionContr
 // @Success      200  {array}  models.Session
 // @Failure      500  {object}  map[string]string
 // @Router       /cinema-service/v1/api/sessions [get]
-func (s *SessionController) GetAllSessions() gin.HandlerFunc {
+func (s *SessionControllerImpl) GetAllSessions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		items, err := s.SessionRepository.GetAllSessions()
+		items, err := s.usecase.GetAllSessions()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении сеансов"})
 			return
@@ -47,7 +58,7 @@ func (s *SessionController) GetAllSessions() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /cinema-service/v1/api/sessions/{id} [get]
-func (s *SessionController) GetSessionByID() gin.HandlerFunc {
+func (s *SessionControllerImpl) GetSessionByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		sessionIDStr := ctx.Param("id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
@@ -56,7 +67,7 @@ func (s *SessionController) GetSessionByID() gin.HandlerFunc {
 			return
 		}
 
-		session, err := s.SessionRepository.GetSessionByID(sessionID)
+		session, err := s.usecase.GetSessionByID(sessionID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Сеанс не найден"})
 			return
@@ -77,7 +88,7 @@ func (s *SessionController) GetSessionByID() gin.HandlerFunc {
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /cinema-service/v1/api/sessions [post]
-func (s *SessionController) CreateSession() gin.HandlerFunc {
+func (s *SessionControllerImpl) CreateSession() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var session models.Session
 		if err := ctx.ShouldBindJSON(&session); err != nil {
@@ -85,7 +96,7 @@ func (s *SessionController) CreateSession() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := s.SessionRepository.CreateSession(session)
+		isSuccess, err := s.usecase.CreateSession(session)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании сеанса"})
 			return
@@ -107,7 +118,7 @@ func (s *SessionController) CreateSession() gin.HandlerFunc {
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /cinema-service/v1/api/sessions/{id} [put]
-func (s *SessionController) UpdateSession() gin.HandlerFunc {
+func (s *SessionControllerImpl) UpdateSession() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		sessionIDStr := ctx.Param("id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
@@ -122,7 +133,7 @@ func (s *SessionController) UpdateSession() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := s.SessionRepository.UpdateSession(sessionID, session)
+		isSuccess, err := s.usecase.UpdateSession(sessionID, session)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при обновлении сеанса"})
 			return
@@ -142,7 +153,7 @@ func (s *SessionController) UpdateSession() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /cinema-service/v1/api/sessions/{id} [delete]
-func (s *SessionController) DeleteSession() gin.HandlerFunc {
+func (s *SessionControllerImpl) DeleteSession() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		sessionIDStr := ctx.Param("id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
@@ -151,7 +162,7 @@ func (s *SessionController) DeleteSession() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := s.SessionRepository.DeleteByID(sessionID)
+		isSuccess, err := s.usecase.DeleteSessionByID(sessionID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при удалении сеанса"})
 			return

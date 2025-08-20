@@ -4,21 +4,30 @@ import (
 	"cinema-service/internal/controllers/auth"
 	"cinema-service/internal/controllers/halls"
 	"cinema-service/internal/controllers/movie"
-	sessions2 "cinema-service/internal/controllers/sessions"
+	"cinema-service/internal/controllers/sessions"
+	"cinema-service/internal/usecases"
+	"cinema-service/pkg/logger"
 )
 
-func NewHandlersFactory(repoFactory *MySqlRepositoryFactory) *HandlersFactory {
+func NewHandlersFactory(repoFactory *MySqlRepositoryFactory, l logger.Logger) *HandlersFactory {
+	usecase := usecases.New(repoFactory.r, l)
+
+	authController := auth.NewAuthController(usecase, l)
+	movieController := movie.NewMovieController(usecase, l)
+	hallController := halls.NewHallController(usecase, l)
+	sessionController := sessions.NewSessionController(usecase, l)
+
 	return &HandlersFactory{
-		MovieController:   movie.NewMovieController(repoFactory.MovieRepo, repoFactory.UserRepo),
-		AuthController:    auth.NewAuthController(repoFactory.UserRepo),
-		HallController:    halls.NewHallController(repoFactory.HallRepo, repoFactory.UserRepo),
-		SessionController: sessions2.NewSessionController(repoFactory.SessionRepo),
+		Auth:              authController,
+		MovieController:   movieController,
+		HallController:    hallController,
+		SessionController: sessionController,
 	}
 }
 
 type HandlersFactory struct {
-	MovieController   *movie.MovieController
-	AuthController    *auth.AuthController
-	HallController    *halls.HallController
-	SessionController *sessions2.SessionController
+	Auth              auth.AuthController
+	MovieController   movie.MovieController
+	HallController    halls.HallController
+	SessionController sessions.SessionController
 }

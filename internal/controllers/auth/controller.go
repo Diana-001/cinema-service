@@ -2,23 +2,32 @@ package auth
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/user"
+	"cinema-service/internal/usecases"
 	"cinema-service/internal/utils"
+	"cinema-service/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
-type AuthController struct {
-	userRepo *user.UserRepository
+type AuthController interface {
+	Register() gin.HandlerFunc
+	Login() gin.HandlerFunc
+	Refresh() gin.HandlerFunc
 }
 
-func NewAuthController(userRepo *user.UserRepository) *AuthController {
-	return &AuthController{
-		userRepo: userRepo,
+type AuthControllerImpl struct {
+	usecase usecases.Usecase
+	l       *logger.Logger
+}
+
+func NewAuthController(u usecases.Usecase, l logger.Logger) AuthController {
+	return &AuthControllerImpl{
+		usecase: u,
+		l:       &l,
 	}
 }
-func (a *AuthController) Register() gin.HandlerFunc {
+func (a *AuthControllerImpl) Register() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req *models.LoginRequest
 
@@ -41,7 +50,7 @@ func (a *AuthController) Register() gin.HandlerFunc {
 			Role:     "user",
 		}
 
-		if err := a.userRepo.CreateUser(userData); err != nil {
+		if err := a.usecase.CreateUser(userData); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании пользователя"})
 			return
 		}
@@ -54,7 +63,7 @@ func (a *AuthController) Register() gin.HandlerFunc {
 	}
 }
 
-func (a *AuthController) Login() gin.HandlerFunc {
+func (a *AuthControllerImpl) Login() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req models.LoginRequest
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -62,7 +71,7 @@ func (a *AuthController) Login() gin.HandlerFunc {
 			return
 		}
 
-		user, err := a.userRepo.GetUserByEmail(req.Email) // userRepo — экземпляр UserRepository
+		user, err := a.usecase.GetUserByEmail(req.Email) // userRepo — экземпляр UserRepositoryImpl
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 			return
@@ -96,7 +105,7 @@ func (a *AuthController) Login() gin.HandlerFunc {
 	}
 }
 
-func (a *AuthController) Refresh() gin.HandlerFunc {
+func (a *AuthControllerImpl) Refresh() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 	}

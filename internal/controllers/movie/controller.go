@@ -2,23 +2,31 @@ package movie
 
 import (
 	"cinema-service/internal/models"
-	"cinema-service/internal/repositories/movie"
-	"cinema-service/internal/repositories/user"
+	"cinema-service/internal/usecases"
+	"cinema-service/pkg/logger"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-type MovieController struct {
-	movieRepo *movie.MovieRepository
-	userRepo  *user.UserRepository
+type MovieController interface {
+	GetAllMovies() gin.HandlerFunc
+	GetMovieByID() gin.HandlerFunc
+	DeleteByID() gin.HandlerFunc
+	UpdateMovie() gin.HandlerFunc
+	CreateMovie() gin.HandlerFunc
 }
 
-func NewMovieController(repo *movie.MovieRepository, userRepo *user.UserRepository) *MovieController {
-	return &MovieController{
-		movieRepo: repo,
-		userRepo:  userRepo,
+type MovieControllerImpl struct {
+	usecase usecases.Usecase
+	l       *logger.Logger
+}
+
+func NewMovieController(u usecases.Usecase, l logger.Logger) MovieController {
+	return &MovieControllerImpl{
+		usecase: u,
+		l:       &l,
 	}
 }
 
@@ -30,9 +38,9 @@ func NewMovieController(repo *movie.MovieRepository, userRepo *user.UserReposito
 // @Success      200 {array} models.Movie
 // @Failure      500 {object} map[string]string
 // @Router       /movies [get]
-func (c *MovieController) GetAllMovies() gin.HandlerFunc {
+func (c *MovieControllerImpl) GetAllMovies() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		movies, err := c.movieRepo.GetAll()
+		movies, err := c.usecase.GetAll()
 		if err != nil {
 			// Возвращаем 500 и сообщение об ошибке клиенту
 			ctx.JSON(500, gin.H{"error": "Ошибка при получении всех фильмов"})
@@ -54,7 +62,7 @@ func (c *MovieController) GetAllMovies() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /movies/{id} [get]
-func (c *MovieController) GetMovieByID() gin.HandlerFunc {
+func (c *MovieControllerImpl) GetMovieByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Получаем id из параметра запроса
 		movieIDStr := ctx.Param("id")
@@ -66,7 +74,7 @@ func (c *MovieController) GetMovieByID() gin.HandlerFunc {
 			return
 		}
 
-		movie, err := c.movieRepo.GetMovieByID(movieID)
+		movie, err := c.usecase.GetMovieByID(movieID)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при получении фильма с ID %d", movieID)})
 			return
@@ -86,7 +94,7 @@ func (c *MovieController) GetMovieByID() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /movies/{id} [delete]
-func (c *MovieController) DeleteByID() gin.HandlerFunc {
+func (c *MovieControllerImpl) DeleteByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Получаем id из параметра запроса
 		movieIDStr := ctx.Param("id")
@@ -98,7 +106,7 @@ func (c *MovieController) DeleteByID() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := c.movieRepo.DeleteByID(movieID)
+		isSuccess, err := c.usecase.DeleteMovieByID(movieID)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при удалений фильма с ID %d", movieID)})
 			return
@@ -118,7 +126,7 @@ func (c *MovieController) DeleteByID() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /movies [post]
-func (c *MovieController) CreateMovie() gin.HandlerFunc {
+func (c *MovieControllerImpl) CreateMovie() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var movie models.Movie
 
@@ -127,7 +135,7 @@ func (c *MovieController) CreateMovie() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := c.movieRepo.CreateMovie(movie)
+		isSuccess, err := c.usecase.CreateMovie(movie)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
 			return
@@ -147,7 +155,7 @@ func (c *MovieController) CreateMovie() gin.HandlerFunc {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /movies/{id} [put]
-func (c *MovieController) UpdateMovie() gin.HandlerFunc {
+func (c *MovieControllerImpl) UpdateMovie() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userIdStr := ctx.GetHeader("user-id")
 
@@ -157,7 +165,7 @@ func (c *MovieController) UpdateMovie() gin.HandlerFunc {
 			return
 		}
 
-		isAdmin := c.userRepo.CheckIsAdmin(userID)
+		isAdmin := c.usecase.CheckIsAdmin(userID)
 		if isAdmin != true {
 			ctx.JSON(403, gin.H{"error": "Операция не доступна для пользователя"})
 			return
@@ -177,7 +185,7 @@ func (c *MovieController) UpdateMovie() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := c.movieRepo.UpdateMovie(movieID, movie)
+		isSuccess, err := c.usecase.UpdateMovie(movieID, movie)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
 			return

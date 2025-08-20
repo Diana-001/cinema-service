@@ -3,21 +3,32 @@ package app
 import (
 	"cinema-service/internal/factories"
 	"cinema-service/internal/models"
+	"cinema-service/internal/repositories"
 	"cinema-service/internal/routes"
+	"cinema-service/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
 )
 
-type MyApp struct {
-	Router  *gin.Engine
-	DB      *gorm.DB
-	Handler *factories.HandlersFactory
-}
+var _ App = (*MyApp)(nil)
 
-// NewApp Первоначальная инициализация приложения
-func NewApp() (*MyApp, error) {
+type (
+	App interface {
+		RunHttp()
+	}
+
+	MyApp struct {
+		Router  *gin.Engine
+		DB      repositories.Repository
+		Logger  *logger.Logger
+		Handler *factories.HandlersFactory
+	}
+)
+
+// NewApp - Первоначальная инициализация приложения
+func NewApp() (App, error) {
 	app := &MyApp{}
 
 	err := app.prepareConfigsAndComponents()
@@ -28,7 +39,7 @@ func NewApp() (*MyApp, error) {
 	return app, nil
 }
 
-// Запуск сервера
+// RunHttp - Запуск сервера
 func (app *MyApp) RunHttp() {
 	app.Router = gin.Default()
 	routes.SetRoutes(app.Router, app.Handler)
@@ -36,21 +47,24 @@ func (app *MyApp) RunHttp() {
 }
 
 func (app *MyApp) prepareConfigsAndComponents() error {
-	app.initDB()
+	db := app.initDB()
+	l := logger.NewLoggerImpl(&logger.LoggerCfg{Lvl: "debug"})
 
-	repoFactory := factories.NewSqlRepositoryFactory(app.DB)
-	app.Handler = factories.NewHandlersFactory(repoFactory)
+	repoFactory := factories.NewSqlRepositoryFactory(db, l)
+	app.Handler = factories.NewHandlersFactory(repoFactory, l)
 
 	return nil
 }
 
-func (app *MyApp) initDB() {
+func (app *MyApp) initDB() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("cinema.db"), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Ошибка при подключений sqlite", err)
 	}
 
-	app.DB = db
+	if err = db.AutoMigrate(&models.User{}, &models.Movie{}, &models.Hall{}, &models.Session{}, &models.RefreshToken{}); err != nil {
+		log.Fatal(err)
+	}
 
-	db.AutoMigrate(&models.User{}, &models.Movie{}, &models.Hall{}, &models.Session{}, &models.RefreshToken{})
+	return db
 }
