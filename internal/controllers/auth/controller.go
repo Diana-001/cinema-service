@@ -32,12 +32,14 @@ func (a *AuthControllerImpl) Register() gin.HandlerFunc {
 		var req *models.LoginRequest
 
 		// Парсим JSON из тела запроса
+		// todo: валидацию входных параметров тоже можно перенести в юзкейсы
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		// Хешируем пароль
+		// todo: давай эту логику вынесем в слой юзкейсов
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при хешировании пароля"})
@@ -50,7 +52,7 @@ func (a *AuthControllerImpl) Register() gin.HandlerFunc {
 			Role:     "user",
 		}
 
-		if err := a.usecase.CreateUser(userData); err != nil {
+		if err = a.usecase.CreateUser(userData); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании пользователя"})
 			return
 		}
@@ -71,6 +73,7 @@ func (a *AuthControllerImpl) Login() gin.HandlerFunc {
 			return
 		}
 
+		// todo: здесь должна быть одна операция - Login на слое юзкейсов - где мы получим пользователя, сверим пароль и вернем токены
 		user, err := a.usecase.GetUserByEmail(req.Email) // userRepo — экземпляр UserRepositoryImpl
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -107,6 +110,6 @@ func (a *AuthControllerImpl) Login() gin.HandlerFunc {
 
 func (a *AuthControllerImpl) Refresh() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
+		// todo: дописать логику
 	}
 }

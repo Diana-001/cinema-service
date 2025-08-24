@@ -43,12 +43,12 @@ func (c *MovieControllerImpl) GetAllMovies() gin.HandlerFunc {
 		movies, err := c.usecase.GetAll()
 		if err != nil {
 			// Возвращаем 500 и сообщение об ошибке клиенту
-			ctx.JSON(500, gin.H{"error": "Ошибка при получении всех фильмов"})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении всех фильмов"})
 			return
 		}
 
 		// Возвращаем фильмы в формате JSON с кодом 200
-		ctx.JSON(200, movies)
+		ctx.JSON(http.StatusOK, movies)
 	}
 }
 
@@ -70,17 +70,17 @@ func (c *MovieControllerImpl) GetMovieByID() gin.HandlerFunc {
 		// Конвертируем string в int
 		movieID, err := strconv.Atoi(movieIDStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID фильма"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID фильма"})
 			return
 		}
 
 		movie, err := c.usecase.GetMovieByID(movieID)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при получении фильма с ID %d", movieID)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при получении фильма с ID %d", movieID)})
 			return
 		}
 
-		ctx.JSON(200, movie)
+		ctx.JSON(http.StatusOK, movie)
 	}
 }
 
@@ -102,17 +102,17 @@ func (c *MovieControllerImpl) DeleteByID() gin.HandlerFunc {
 		// Конвертируем string в int
 		movieID, err := strconv.Atoi(movieIDStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID фильма"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID фильма"})
 			return
 		}
 
 		isSuccess, err := c.usecase.DeleteMovieByID(movieID)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при удалений фильма с ID %d", movieID)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при удалений фильма с ID %d", movieID)})
 			return
 		}
 
-		ctx.JSON(200, isSuccess)
+		ctx.JSON(http.StatusOK, isSuccess)
 	}
 }
 
@@ -137,11 +137,11 @@ func (c *MovieControllerImpl) CreateMovie() gin.HandlerFunc {
 
 		isSuccess, err := c.usecase.CreateMovie(movie)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
 			return
 		}
 
-		ctx.JSON(200, isSuccess)
+		ctx.JSON(http.StatusOK, isSuccess)
 	}
 }
 
@@ -161,13 +161,14 @@ func (c *MovieControllerImpl) UpdateMovie() gin.HandlerFunc {
 
 		userID, err := strconv.Atoi(userIdStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID пользователя"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID пользователя"})
 			return
 		}
 
+		// todo: все админские проверки должны быть в usecase - правильно будет тут собирать какую-то структуру, передавать ее в юзкейсы и там с ней работать
 		isAdmin := c.usecase.CheckIsAdmin(userID)
 		if isAdmin != true {
-			ctx.JSON(403, gin.H{"error": "Операция не доступна для пользователя"})
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "Операция не доступна для пользователя"})
 			return
 		}
 
@@ -175,22 +176,22 @@ func (c *MovieControllerImpl) UpdateMovie() gin.HandlerFunc {
 
 		movieID, err := strconv.Atoi(movieIDStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID фильма"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID фильма"})
 			return
 		}
 
 		var movie models.Movie
-		if err := ctx.ShouldBindJSON(&movie); err != nil {
+		if err = ctx.ShouldBindJSON(&movie); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		isSuccess, err := c.usecase.UpdateMovie(movieID, movie)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
 			return
 		}
 
-		ctx.JSON(200, isSuccess)
+		ctx.JSON(http.StatusOK, isSuccess)
 	}
 }

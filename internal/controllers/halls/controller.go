@@ -71,17 +71,17 @@ func (h *HallControllerImpl) GetHallsByID() gin.HandlerFunc {
 		// Конвертируем string в int
 		hallID, err := strconv.Atoi(hallIDStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID фильма"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID фильма"})
 			return
 		}
 
 		data, err := h.usecase.GetHallByID(hallID)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при получении фильма с ID %d", hallID)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при получении фильма с ID %d", hallID)})
 			return
 		}
 
-		ctx.JSON(200, data)
+		ctx.JSON(http.StatusOK, data)
 	}
 }
 
@@ -103,17 +103,17 @@ func (h *HallControllerImpl) DeleteByID() gin.HandlerFunc {
 		// Конвертируем string в int
 		hallID, err := strconv.Atoi(hallIDStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID фильма"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID фильма"})
 			return
 		}
 
 		isSuccess, err := h.usecase.DeleteHallByID(hallID)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при удалений фильма с ID %d", hallID)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при удалений фильма с ID %d", hallID)})
 			return
 		}
 
-		ctx.JSON(200, isSuccess)
+		ctx.JSON(http.StatusOK, isSuccess)
 	}
 }
 
@@ -139,11 +139,11 @@ func (h *HallControllerImpl) CreateHall() gin.HandlerFunc {
 
 		isSuccess, err := h.usecase.CreateHall(input)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
 			return
 		}
 
-		ctx.JSON(200, isSuccess)
+		ctx.JSON(http.StatusOK, isSuccess)
 	}
 }
 
@@ -167,13 +167,14 @@ func (h *HallControllerImpl) UpdateHAll() gin.HandlerFunc {
 
 		userID, err := strconv.Atoi(userIdStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID пользователя"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID пользователя"})
 			return
 		}
 
+		// todo: все админские проверки должны быть в usecase - правильно будет тут собирать какую-то структуру, передавать ее в юзкейсы и там с ней работать
 		isAdmin := h.usecase.CheckIsAdmin(userID)
 		if isAdmin != true {
-			ctx.JSON(403, gin.H{"error": "Операция не доступна для пользователя"})
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "Операция не доступна для пользователя"})
 			return
 		}
 
@@ -181,22 +182,22 @@ func (h *HallControllerImpl) UpdateHAll() gin.HandlerFunc {
 
 		hallID, err := strconv.Atoi(hallIDStr)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Некорректный ID фильма"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID фильма"})
 			return
 		}
 
 		var input models.Hall
-		if err := ctx.ShouldBindJSON(&input); err != nil {
+		if err = ctx.ShouldBindJSON(&input); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		isSuccess, err := h.usecase.UpdateHall(hallID, input)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
 			return
 		}
 
-		ctx.JSON(200, isSuccess)
+		ctx.JSON(http.StatusOK, isSuccess)
 	}
 }
