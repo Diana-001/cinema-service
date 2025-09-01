@@ -5,8 +5,10 @@ import (
 	"cinema-service/internal/usecases"
 	"cinema-service/internal/utils"
 	"cinema-service/pkg/logger"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+
 	"net/http"
 )
 
@@ -38,29 +40,21 @@ func (a *AuthControllerImpl) Register() gin.HandlerFunc {
 			return
 		}
 
-		// Хешируем пароль
-		// todo: давай эту логику вынесем в слой юзкейсов
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при хешировании пароля"})
+		if err := req.Validate(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		userData := &models.User{
-			Email:    req.Email,
-			Password: string(hashedPassword),
-			Role:     "user",
-		}
-
-		if err = a.usecase.CreateUser(userData); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании пользователя"})
+		user, err := a.usecase.CreateUser(ctx, req.ToCreateUserRequest())
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
 		// Возвращаем успешный ответ
 		ctx.JSON(http.StatusCreated, gin.H{
 			"message": "Пользователь успешно зарегистрирован",
-			"user_id": userData.ID,
+			"user_id": user.ID,
 		})
 	}
 }
