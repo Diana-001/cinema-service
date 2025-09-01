@@ -25,6 +25,7 @@ func (u *UsecaseImpl) CreateUser(ctx context.Context, reqData *models.CreateUser
 		u.l.WarnCtx(ctx, "Ошибка при создании пользователя: данные пользователя пусты")
 		return nil, errors.New("данные пользователя пусты")
 	}
+	// todo: здесь же можно добавить проверку на уникальность email и тому подобное
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(reqData.Password), bcrypt.DefaultCost)
 	if err != nil {
 		u.l.Error("Ошибка при хешировании пароля", err)
