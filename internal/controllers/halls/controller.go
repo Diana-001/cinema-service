@@ -171,13 +171,6 @@ func (h *HallControllerImpl) UpdateHAll() gin.HandlerFunc {
 			return
 		}
 
-		// todo: все админские проверки должны быть в usecase - правильно будет тут собирать какую-то структуру, передавать ее в юзкейсы и там с ней работать
-		isAdmin := h.usecase.CheckIsAdmin(userID)
-		if isAdmin != true {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "Операция не доступна для пользователя"})
-			return
-		}
-
 		hallIDStr := ctx.Param("id")
 
 		hallID, err := strconv.Atoi(hallIDStr)
@@ -192,7 +185,7 @@ func (h *HallControllerImpl) UpdateHAll() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := h.usecase.UpdateHall(hallID, input)
+		isSuccess, err := h.usecase.UpdateHall(hallID, userID, input, ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", input)})
 			return
