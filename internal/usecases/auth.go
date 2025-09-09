@@ -52,15 +52,15 @@ func (u *UsecaseImpl) CheckIsAdmin(id int) bool {
 	return u.r.CheckIsAdmin(id)
 }
 
-func (u *UsecaseImpl) Login(email, password string) (*models.TokenResponse, error) {
-	user, err := u.GetUserByEmail(email)
+func (u *UsecaseImpl) Login(req models.LoginRequest) (*models.TokenResponse, error) {
+	user, err := u.GetUserByEmail(req.Email)
 	if err != nil {
 		u.l.Error("Ошибка: пользователь не найден", err)
 		return nil, errors.New("неверный email ")
 	}
 
 	// Сравниваем пароли
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 		return nil, errors.New("неверный пароль")
 	}
 

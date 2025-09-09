@@ -5,8 +5,9 @@ import (
 	"cinema-service/internal/usecases"
 	"cinema-service/pkg/logger"
 
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthController interface {
@@ -31,7 +32,6 @@ func (a *AuthControllerImpl) Register() gin.HandlerFunc {
 		var req *models.LoginRequest
 
 		// Парсим JSON из тела запроса
-		// todo: валидацию входных параметров тоже можно перенести в юзкейсы
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -64,7 +64,7 @@ func (a *AuthControllerImpl) Login() gin.HandlerFunc {
 			return
 		}
 
-		tokens, err := a.usecase.Login(req) // userRepo — экземпляр UserRepositoryImpl
+		tokens, err := a.usecase.Login(req)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Ошибка данных"})
 			return
@@ -85,7 +85,6 @@ func (a *AuthControllerImpl) Refresh() gin.HandlerFunc {
 			return
 		}
 
-		// Вызов usecase для обновления токенов
 		tokens, err := a.usecase.Refresh(req.RefreshToken)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
