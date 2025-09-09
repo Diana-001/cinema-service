@@ -165,13 +165,6 @@ func (c *MovieControllerImpl) UpdateMovie() gin.HandlerFunc {
 			return
 		}
 
-		// todo: все админские проверки должны быть в usecase - правильно будет тут собирать какую-то структуру, передавать ее в юзкейсы и там с ней работать
-		isAdmin := c.usecase.CheckIsAdmin(userID)
-		if isAdmin != true {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "Операция не доступна для пользователя"})
-			return
-		}
-
 		movieIDStr := ctx.Param("id")
 
 		movieID, err := strconv.Atoi(movieIDStr)
@@ -186,7 +179,7 @@ func (c *MovieControllerImpl) UpdateMovie() gin.HandlerFunc {
 			return
 		}
 
-		isSuccess, err := c.usecase.UpdateMovie(movieID, movie)
+		isSuccess, err := c.usecase.UpdateMovie(movieID, userID, movie, ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка при созданий фильма с ID %d", movie)})
 			return

@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"cinema-service/internal/utils"
 	"context"
 	"errors"
 	"fmt"
@@ -18,6 +19,8 @@ type AuthUsecase interface {
 	CreateUser(ctx context.Context, reqData *models.CreateUserRequest) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	CheckIsAdmin(id int) bool
+	Login(payload models.LoginRequest) (*models.TokenResponse, error)
+	Refresh(refreshToken string) (*models.TokenResponse, error)
 }
 
 func (u *UsecaseImpl) CreateUser(ctx context.Context, reqData *models.CreateUserRequest) (*models.User, error) {
@@ -47,4 +50,62 @@ func (u *UsecaseImpl) GetUserByEmail(email string) (*models.User, error) {
 
 func (u *UsecaseImpl) CheckIsAdmin(id int) bool {
 	return u.r.CheckIsAdmin(id)
+}
+
+func (u *UsecaseImpl) Login(req models.LoginRequest) (*models.TokenResponse, error) {
+	user, err := u.GetUserByEmail(req.Email)
+	if err != nil {
+		u.l.Error("Ошибка: пользователь не найден", err)
+		return nil, errors.New("неверный email ")
+	}
+
+	// Сравниваем пароли
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		return nil, errors.New("неверный пароль")
+	}
+
+	// Генерация токенов
+	accessToken, err := utils.GenerateAccessToken(user.Email)
+	if err != nil {
+		u.l.Error("Ошибка при генерации access токена", err)
+		return nil, fmt.Errorf("не удалось создать access token: %w", err)
+	}
+
+	refreshToken, err := utils.GenerateRefreshToken(user.Email)
+	if err != nil {
+		u.l.Error("Ошибка при генерации refresh токена", err)
+		return nil, fmt.Errorf("не удалось создать refresh token: %w", err)
+	}
+
+	return &models.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (u *UsecaseImpl) Refresh(refreshToken string) (*models.TokenResponse, error) {
+	claims, err := utils.ParseRefreshToken(refreshToken)
+	if err != nil {
+		return nil, errors.New("невалидный refresh токен")
+	}
+
+	user, err := u.GetUserByEmail(claims.Email)
+	if err != nil {
+		return nil, errors.New("пользователь не найден")
+	}
+
+	accessToken, err := utils.GenerateAccessToken(user.Email)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при генерации access токена: %w", err)
+	}
+
+	newRefreshToken, err := utils.GenerateRefreshToken(user.Email)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при генерации refresh токена: %w", err)
+	}
+
+	return &models.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken,
+	}, nil
 }
