@@ -1,3 +1,5 @@
+//go:generate mockgen -source=hall.go -destination=../mocks/hall_mock.go -package=mocks
+
 package repositories
 
 import (

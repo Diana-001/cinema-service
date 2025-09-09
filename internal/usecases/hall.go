@@ -15,27 +15,27 @@ type HallUsecase interface {
 }
 
 func (u *UsecaseImpl) GetAllHalls() ([]models.Hall, error) {
-	return u.r.GetAllHalls()
+	return u.R.GetAllHalls()
 }
 
 func (u *UsecaseImpl) GetHallByID(id int) (models.Hall, error) {
-	return u.r.GetHallByID(id)
+	return u.R.GetHallByID(id)
 }
 
 func (u *UsecaseImpl) DeleteHallByID(id int) (bool, error) {
-	return u.r.DeleteHallByID(id)
+	return u.R.DeleteHallByID(id)
 }
 
 func (u *UsecaseImpl) CreateHall(body models.Hall) (bool, error) {
-	return u.r.CreateHall(body)
+	return u.R.CreateHall(body)
 }
 
 func (u *UsecaseImpl) UpdateHall(id, userId int, body models.Hall, ctx context.Context) (bool, error) {
-	isAdmin := u.r.CheckIsAdmin(userId)
+	isAdmin := u.R.CheckIsAdmin(userId)
 	if isAdmin != true {
-		u.l.WarnCtx(ctx, "Ошибка при обновлений данных зала: oперация не доступна для пользователя")
+		u.L.WarnCtx(ctx, "Ошибка при обновлений данных зала: oперация не доступна для пользователя")
 		return false, errors.New("oперация не доступна для пользователя")
 	}
 
-	return u.r.UpdateHall(id, body)
+	return u.R.UpdateHall(id, body)
 }

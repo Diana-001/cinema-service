@@ -15,27 +15,27 @@ type MovieUsecase interface {
 }
 
 func (u *UsecaseImpl) GetAll() ([]models.Movie, error) {
-	return u.r.GetAll()
+	return u.R.GetAll()
 }
 
 func (u *UsecaseImpl) GetMovieByID(id int) (models.Movie, error) {
-	return u.r.GetMovieByID(id)
+	return u.R.GetMovieByID(id)
 }
 
 func (u *UsecaseImpl) DeleteMovieByID(id int) (bool, error) {
-	return u.r.DeleteMovieByID(id)
+	return u.R.DeleteMovieByID(id)
 }
 
 func (u *UsecaseImpl) CreateMovie(body models.Movie) (bool, error) {
-	return u.r.CreateMovie(body)
+	return u.R.CreateMovie(body)
 }
 
 func (u *UsecaseImpl) UpdateMovie(id, userId int, body models.Movie, ctx context.Context) (bool, error) {
-	isAdmin := u.r.CheckIsAdmin(userId)
+	isAdmin := u.R.CheckIsAdmin(userId)
 	if isAdmin != true {
-		u.l.WarnCtx(ctx, "Ошибка при обновлений данных о фильме: oперация не доступна для пользователя")
+		u.L.WarnCtx(ctx, "Ошибка при обновлений данных о фильме: oперация не доступна для пользователя")
 		return false, errors.New("oперация не доступна для пользователя")
 	}
 
-	return u.r.UpdateMovie(id, body)
+	return u.R.UpdateMovie(id, body)
 }
