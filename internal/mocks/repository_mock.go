@@ -159,21 +159,6 @@ func (mr *MockRepositoryMockRecorder) DeleteSessionByID(id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSessionByID", reflect.TypeOf((*MockRepository)(nil).DeleteSessionByID), id)
 }
 
-// GetAll mocks base method.
-func (m *MockRepository) GetAll() ([]models.Movie, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
-	ret0, _ := ret[0].([]models.Movie)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAll indicates an expected call of GetAll.
-func (mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll))
-}
-
 // GetAllHalls mocks base method.
 func (m *MockRepository) GetAllHalls() ([]models.Hall, error) {
 	m.ctrl.T.Helper()
@@ -187,6 +172,21 @@ func (m *MockRepository) GetAllHalls() ([]models.Hall, error) {
 func (mr *MockRepositoryMockRecorder) GetAllHalls() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllHalls", reflect.TypeOf((*MockRepository)(nil).GetAllHalls))
+}
+
+// GetAllMovies mocks base method.
+func (m *MockRepository) GetAllMovies() ([]models.Movie, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllMovies")
+	ret0, _ := ret[0].([]models.Movie)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllMovies indicates an expected call of GetAllMovies.
+func (mr *MockRepositoryMockRecorder) GetAllMovies() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllMovies", reflect.TypeOf((*MockRepository)(nil).GetAllMovies))
 }
 
 // GetAllSessions mocks base method.

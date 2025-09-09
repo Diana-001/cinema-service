@@ -40,7 +40,7 @@ func NewMovieController(u usecases.Usecase, l logger.Logger) MovieController {
 // @Router       /movies [get]
 func (c *MovieControllerImpl) GetAllMovies() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		movies, err := c.usecase.GetAll()
+		movies, err := c.usecase.GetAllMovies()
 		if err != nil {
 			// Возвращаем 500 и сообщение об ошибке клиенту
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении всех фильмов"})

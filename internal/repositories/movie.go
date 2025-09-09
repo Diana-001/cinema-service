@@ -6,14 +6,14 @@ import (
 )
 
 type MovieRepository interface {
-	GetAll() ([]models.Movie, error)
+	GetAllMovies() ([]models.Movie, error)
 	GetMovieByID(id int) (models.Movie, error)
 	DeleteMovieByID(id int) (bool, error)
 	CreateMovie(body models.Movie) (bool, error)
 	UpdateMovie(id int, body models.Movie) (bool, error)
 }
 
-func (repo *RepositoryImpl) GetAll() ([]models.Movie, error) {
+func (repo *RepositoryImpl) GetAllMovies() ([]models.Movie, error) {
 	var movies []models.Movie
 	if err := repo.db.Find(&movies).Error; err != nil {
 		return nil, err
