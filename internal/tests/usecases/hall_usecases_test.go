@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"
+	"time"
 )
 
 func TestUpdateHall_Success(t *testing.T) {
@@ -54,4 +55,33 @@ func TestGetAllHalls(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedHalls, halls)
+}
+
+func TestGetHallByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	exceptedHall := models.Hall{
+		ID:          1,
+		Name:        "Зал IMAX",
+		Rows:        10,
+		SeatsPerRow: 20,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	mockRepo.EXPECT().GetHallByID(1).Return(exceptedHall, nil)
+
+	hall, err := uc.GetHallByID(1)
+
+	assert.NoError(t, err)
+	assert.Equal(t, exceptedHall, hall)
+
 }

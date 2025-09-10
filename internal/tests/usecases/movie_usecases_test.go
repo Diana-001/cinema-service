@@ -31,3 +31,25 @@ func TestGetAllMovies(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedMovies, movies)
 }
+
+func TestGetMoviesByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	expectedMovies := models.Movie{ID: 1, Title: "Mortal Combat", Duration: 123}
+
+	mockRepo.EXPECT().GetMovieByID(1).Return(expectedMovies, nil)
+
+	movies, err := uc.GetMovieByID(1)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedMovies, movies)
+
+}

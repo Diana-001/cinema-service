@@ -39,3 +39,32 @@ func TestGetAllSessions(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedSessions, sessions)
 }
+
+func TestGetSessionByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	exceptedSession := &models.Session{
+		ID:        5,
+		MovieID:   10,
+		Movie:     models.Movie{ID: 10, Title: "Inception", Duration: 148},
+		HallID:    5,
+		Hall:      models.Hall{ID: 5, Name: "IMAX"},
+		StartTime: time.Date(2025, 9, 5, 19, 0, 0, 0, time.UTC),
+		Price:     1500.00,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now()}
+
+	mockRepo.EXPECT().GetSessionByID(5).Return(exceptedSession, nil)
+
+	session, err := uc.GetSessionByID(5)
+
+	assert.NoError(t, err)
+	assert.Equal(t, exceptedSession, session)
+}
