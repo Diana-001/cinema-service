@@ -25,7 +25,7 @@ func TestGetAllMovies(t *testing.T) {
 		{ID: 2, Title: "Avatar", Duration: 360},
 	}
 
-	mockRepo.EXPECT().GetAllMovies().Return(expectedMovies, nil)
+	mockRepo.EXPECT().GetAllMovies().Return(expectedMovies, nil).Times(1)
 
 	movies, err := uc.GetAllMovies()
 
@@ -45,7 +45,7 @@ func TestGetMoviesByID(t *testing.T) {
 
 	expectedMovies := models.Movie{ID: 1, Title: "Mortal Combat", Duration: 123}
 
-	mockRepo.EXPECT().GetMovieByID(1).Return(expectedMovies, nil)
+	mockRepo.EXPECT().GetMovieByID(1).Return(expectedMovies, nil).Times(1)
 
 	movies, err := uc.GetMovieByID(1)
 
@@ -63,7 +63,7 @@ func TestDeleteMoviesByID(t *testing.T) {
 		R: mockRepo,
 	}
 
-	mockRepo.EXPECT().DeleteMovieByID(1).Return(true, nil)
+	mockRepo.EXPECT().DeleteMovieByID(1).Return(true, nil).Times(1)
 
 	isDeleted, err := uc.DeleteMovieByID(1)
 
@@ -83,7 +83,7 @@ func TestCreateMovie(t *testing.T) {
 
 	reqBody := models.Movie{ID: 1, Title: "Mortal Combat", Duration: 123}
 
-	mockRepo.EXPECT().CreateMovie(reqBody).Return(true, nil)
+	mockRepo.EXPECT().CreateMovie(reqBody).Return(true, nil).Times(1)
 
 	isCreated, err := uc.CreateMovie(reqBody)
 
@@ -105,8 +105,8 @@ func TestUpdateMovie(t *testing.T) {
 	movie := models.Movie{ID: 1, Title: "Mortal Combat 3", Duration: 100}
 
 	// Ожидания
-	mockRepo.EXPECT().CheckIsAdmin(123).Return(true)
-	mockRepo.EXPECT().UpdateMovie(1, movie).Return(true, nil)
+	mockRepo.EXPECT().CheckIsAdmin(123).Return(true).Times(1)
+	mockRepo.EXPECT().UpdateMovie(1, movie).Return(true, nil).Times(1)
 
 	ok, err := uc.UpdateMovie(1, 123, movie, ctx)
 

@@ -33,7 +33,7 @@ func TestGetAllSessions(t *testing.T) {
 			UpdatedAt: time.Now()},
 	}
 
-	mockRepo.EXPECT().GetAllSessions().Return(expectedSessions, nil)
+	mockRepo.EXPECT().GetAllSessions().Return(expectedSessions, nil).Times(1)
 
 	sessions, err := uc.GetAllSessions()
 
@@ -62,7 +62,7 @@ func TestGetSessionByID(t *testing.T) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now()}
 
-	mockRepo.EXPECT().GetSessionByID(5).Return(exceptedSession, nil)
+	mockRepo.EXPECT().GetSessionByID(5).Return(exceptedSession, nil).Times(1)
 
 	session, err := uc.GetSessionByID(5)
 
@@ -80,7 +80,7 @@ func TestDeleteSessionByID(t *testing.T) {
 		R: mockRepo,
 	}
 
-	mockRepo.EXPECT().DeleteSessionByID(13).Return(true, nil)
+	mockRepo.EXPECT().DeleteSessionByID(13).Return(true, nil).Times(1)
 
 	isDeleted, err := uc.DeleteSessionByID(13)
 
@@ -109,7 +109,7 @@ func TestCreateSession(t *testing.T) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now()}
 
-	mockRepo.EXPECT().CreateSession(reqBody).Return(true, nil)
+	mockRepo.EXPECT().CreateSession(reqBody).Return(true, nil).Times(1)
 
 	isCreated, err := uc.CreateSession(reqBody)
 
@@ -138,7 +138,7 @@ func TestUpdateSession(t *testing.T) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now()}
 
-	mockRepo.EXPECT().UpdateSession(1, session).Return(true, nil)
+	mockRepo.EXPECT().UpdateSession(1, session).Return(true, nil).Times(1)
 
 	ok, err := uc.UpdateSession(1, session)
 

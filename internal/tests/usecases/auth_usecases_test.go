@@ -67,7 +67,7 @@ func TestRegisterUser(t *testing.T) {
 
 	mockRepo.EXPECT().
 		CreateUser(gomock.AssignableToTypeOf(&models.User{})).
-		Return(expectedResponse, nil)
+		Return(expectedResponse, nil).Times(1)
 
 	user, err := uc.CreateUser(ctx, newUser)
 
@@ -98,7 +98,7 @@ func TestRefresh(t *testing.T) {
 	}
 	mockRepo.EXPECT().
 		GetUserByEmail(email).
-		Return(expectedUser, nil).Times(1)
+		Return(expectedUser, nil).Times(1).Times(1)
 
 	resp, err := uc.Refresh(refreshToken)
 

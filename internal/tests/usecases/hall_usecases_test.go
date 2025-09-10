@@ -25,8 +25,8 @@ func TestUpdateHall(t *testing.T) {
 	hall := models.Hall{ID: 1, Name: "IMAX"}
 
 	// Ожидания
-	mockRepo.EXPECT().CheckIsAdmin(123).Return(true)
-	mockRepo.EXPECT().UpdateHall(1, hall).Return(true, nil)
+	mockRepo.EXPECT().CheckIsAdmin(123).Return(true).Times(1)
+	mockRepo.EXPECT().UpdateHall(1, hall).Return(true, nil).Times(1)
 
 	ok, err := uc.UpdateHall(1, 123, hall, ctx)
 
@@ -49,7 +49,7 @@ func TestGetAllHalls(t *testing.T) {
 		{ID: 2, Name: "300 spartans"},
 	}
 
-	mockRepo.EXPECT().GetAllHalls().Return(expectedHalls, nil)
+	mockRepo.EXPECT().GetAllHalls().Return(expectedHalls, nil).Times(1)
 
 	halls, err := uc.GetAllHalls()
 
@@ -76,7 +76,7 @@ func TestGetHallByID(t *testing.T) {
 		UpdatedAt:   time.Now(),
 	}
 
-	mockRepo.EXPECT().GetHallByID(1).Return(exceptedHall, nil)
+	mockRepo.EXPECT().GetHallByID(1).Return(exceptedHall, nil).Times(1)
 
 	hall, err := uc.GetHallByID(1)
 
@@ -94,7 +94,7 @@ func TestDeleteHallByID(t *testing.T) {
 		R: mockRepo,
 	}
 
-	mockRepo.EXPECT().DeleteHallByID(10).Return(true, nil)
+	mockRepo.EXPECT().DeleteHallByID(10).Return(true, nil).Times(1)
 
 	isDeleted, err := uc.DeleteHallByID(10)
 
@@ -121,7 +121,7 @@ func TestCreateHall(t *testing.T) {
 		UpdatedAt:   time.Now(),
 	}
 
-	mockRepo.EXPECT().CreateHall(reqBody).Return(true, nil)
+	mockRepo.EXPECT().CreateHall(reqBody).Return(true, nil).Times(1)
 
 	isCreated, err := uc.CreateHall(reqBody)
 
