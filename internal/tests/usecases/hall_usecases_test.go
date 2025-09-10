@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestUpdateHall_Success(t *testing.T) {
+func TestUpdateHall(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

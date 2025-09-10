@@ -4,6 +4,7 @@ import (
 	"cinema-service/internal/mocks"
 	"cinema-service/internal/models"
 	"cinema-service/internal/usecases"
+	"context"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"
@@ -88,4 +89,27 @@ func TestCreateMovie(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, isCreated)
+}
+
+func TestUpdateMovie(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	ctx := context.Background()
+	movie := models.Movie{ID: 1, Title: "Mortal Combat 3", Duration: 100}
+
+	// Ожидания
+	mockRepo.EXPECT().CheckIsAdmin(123).Return(true)
+	mockRepo.EXPECT().UpdateMovie(1, movie).Return(true, nil)
+
+	ok, err := uc.UpdateMovie(1, 123, movie, ctx)
+
+	assert.NoError(t, err)
+	assert.True(t, ok)
 }

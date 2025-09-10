@@ -4,6 +4,7 @@ import (
 	"cinema-service/internal/mocks"
 	"cinema-service/internal/models"
 	"cinema-service/internal/usecases"
+
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"
@@ -114,4 +115,33 @@ func TestCreateSession(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, isCreated)
+}
+
+func TestUpdateSession(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	session := models.Session{
+		ID:        5,
+		MovieID:   15,
+		Movie:     models.Movie{ID: 1, Title: "Mortal Combat 3", Duration: 100},
+		HallID:    5,
+		Hall:      models.Hall{ID: 3, Name: "IMAX"},
+		StartTime: time.Date(2025, 9, 5, 19, 0, 0, 0, time.UTC),
+		Price:     900.00,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now()}
+
+	mockRepo.EXPECT().UpdateSession(1, session).Return(true, nil)
+
+	ok, err := uc.UpdateSession(1, session)
+
+	assert.NoError(t, err)
+	assert.True(t, ok)
 }
