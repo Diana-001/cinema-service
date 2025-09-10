@@ -6,10 +6,12 @@ import (
 	"cinema-service/internal/usecases"
 	"cinema-service/internal/utils"
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
-	"testing"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestLogin(t *testing.T) {
@@ -18,18 +20,22 @@ func TestLogin(t *testing.T) {
 
 	mockRepo := mocks.NewMockRepository(ctrl)
 
+	reqPassword := "somePassword"
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(reqPassword), bcrypt.DefaultCost)
+	require.NoError(t, err)
+
 	mockRepo.EXPECT().
 		GetUserByEmail("test@example.com").
 		Return(&models.User{
 			Email:    "test@example.com",
-			Password: "$2a$10$hashПароля",
-		}, nil)
+			Password: string(hashedPassword),
+		}, nil).Times(1)
 
 	uc := usecases.New(mockRepo, nil)
 
 	tokens, err := uc.Login(models.LoginRequest{
 		Email:    "test@example.com",
-		Password: "правильныйПароль",
+		Password: reqPassword,
 	})
 
 	assert.NoError(t, err)
@@ -92,7 +98,7 @@ func TestRefresh(t *testing.T) {
 	}
 	mockRepo.EXPECT().
 		GetUserByEmail(email).
-		Return(expectedUser, nil)
+		Return(expectedUser, nil).Times(1)
 
 	resp, err := uc.Refresh(refreshToken)
 
