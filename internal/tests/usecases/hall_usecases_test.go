@@ -59,7 +59,6 @@ func TestGetAllHalls(t *testing.T) {
 
 func TestGetHallByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
-
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockRepository(ctrl)
@@ -87,7 +86,6 @@ func TestGetHallByID(t *testing.T) {
 
 func TestDeleteHallByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
-
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockRepository(ctrl)
@@ -102,4 +100,31 @@ func TestDeleteHallByID(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, isDeleted)
+}
+
+func TestCreateHall(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	reqBody := models.Hall{
+		ID:          1,
+		Name:        "Зал IMAX",
+		Rows:        10,
+		SeatsPerRow: 20,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	mockRepo.EXPECT().CreateHall(reqBody).Return(true, nil)
+
+	isCreated, err := uc.CreateHall(reqBody)
+
+	assert.NoError(t, err)
+	assert.Equal(t, true, isCreated)
 }

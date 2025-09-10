@@ -85,5 +85,33 @@ func TestDeleteSessionByID(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, isDeleted)
+}
 
+func TestCreateSession(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	reqBody := models.Session{
+		ID:        5,
+		MovieID:   10,
+		Movie:     models.Movie{ID: 10, Title: "Inception", Duration: 148},
+		HallID:    5,
+		Hall:      models.Hall{ID: 5, Name: "IMAX"},
+		StartTime: time.Date(2025, 9, 5, 19, 0, 0, 0, time.UTC),
+		Price:     1500.00,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now()}
+
+	mockRepo.EXPECT().CreateSession(reqBody).Return(true, nil)
+
+	isCreated, err := uc.CreateSession(reqBody)
+
+	assert.NoError(t, err)
+	assert.Equal(t, true, isCreated)
 }

@@ -34,7 +34,6 @@ func TestGetAllMovies(t *testing.T) {
 
 func TestGetMoviesByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
-
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockRepository(ctrl)
@@ -51,12 +50,10 @@ func TestGetMoviesByID(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedMovies, movies)
-
 }
 
 func TestDeleteMoviesByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
-
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockRepository(ctrl)
@@ -71,4 +68,24 @@ func TestDeleteMoviesByID(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, isDeleted)
+}
+
+func TestCreateMovie(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	reqBody := models.Movie{ID: 1, Title: "Mortal Combat", Duration: 123}
+
+	mockRepo.EXPECT().CreateMovie(reqBody).Return(true, nil)
+
+	isCreated, err := uc.CreateMovie(reqBody)
+
+	assert.NoError(t, err)
+	assert.Equal(t, true, isCreated)
 }
