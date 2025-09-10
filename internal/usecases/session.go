@@ -11,21 +11,21 @@ type SessionUsecase interface {
 }
 
 func (u *UsecaseImpl) GetAllSessions() ([]models.Session, error) {
-	return u.r.GetAllSessions()
+	return u.R.GetAllSessions()
 }
 
 func (u *UsecaseImpl) GetSessionByID(id int) (*models.Session, error) {
-	return u.r.GetSessionByID(id)
+	return u.R.GetSessionByID(id)
 }
 
 func (u *UsecaseImpl) CreateSession(session models.Session) (bool, error) {
-	return u.r.CreateSession(session)
+	return u.R.CreateSession(session)
 }
 
 func (u *UsecaseImpl) UpdateSession(id int, body models.Session) (bool, error) {
-	return u.r.UpdateSession(id, body)
+	return u.R.UpdateSession(id, body)
 }
 
 func (u *UsecaseImpl) DeleteSessionByID(id int) (bool, error) {
-	return u.r.DeleteSessionByID(id)
+	return u.R.DeleteSessionByID(id)
 }

@@ -16,14 +16,14 @@ type (
 	}
 
 	UsecaseImpl struct {
-		r repositories.Repository
-		l logger.Logger
+		R repositories.Repository
+		L logger.Logger
 	}
 )
 
 func New(r repositories.Repository, l logger.Logger) *UsecaseImpl {
 	return &UsecaseImpl{
-		r: r,
-		l: l,
+		R: r,
+		L: l,
 	}
 }

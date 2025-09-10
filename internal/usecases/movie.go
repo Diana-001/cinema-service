@@ -7,35 +7,35 @@ import (
 )
 
 type MovieUsecase interface {
-	GetAll() ([]models.Movie, error)
+	GetAllMovies() ([]models.Movie, error)
 	GetMovieByID(id int) (models.Movie, error)
 	DeleteMovieByID(id int) (bool, error)
 	CreateMovie(body models.Movie) (bool, error)
 	UpdateMovie(id, userId int, body models.Movie, ctx context.Context) (bool, error)
 }
 
-func (u *UsecaseImpl) GetAll() ([]models.Movie, error) {
-	return u.r.GetAll()
+func (u *UsecaseImpl) GetAllMovies() ([]models.Movie, error) {
+	return u.R.GetAllMovies()
 }
 
 func (u *UsecaseImpl) GetMovieByID(id int) (models.Movie, error) {
-	return u.r.GetMovieByID(id)
+	return u.R.GetMovieByID(id)
 }
 
 func (u *UsecaseImpl) DeleteMovieByID(id int) (bool, error) {
-	return u.r.DeleteMovieByID(id)
+	return u.R.DeleteMovieByID(id)
 }
 
 func (u *UsecaseImpl) CreateMovie(body models.Movie) (bool, error) {
-	return u.r.CreateMovie(body)
+	return u.R.CreateMovie(body)
 }
 
 func (u *UsecaseImpl) UpdateMovie(id, userId int, body models.Movie, ctx context.Context) (bool, error) {
-	isAdmin := u.r.CheckIsAdmin(userId)
+	isAdmin := u.R.CheckIsAdmin(userId)
 	if isAdmin != true {
-		u.l.WarnCtx(ctx, "Ошибка при обновлений данных о фильме: oперация не доступна для пользователя")
+		u.L.WarnCtx(ctx, "Ошибка при обновлений данных о фильме: oперация не доступна для пользователя")
 		return false, errors.New("oперация не доступна для пользователя")
 	}
 
-	return u.r.UpdateMovie(id, body)
+	return u.R.UpdateMovie(id, body)
 }

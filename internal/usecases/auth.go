@@ -25,13 +25,13 @@ type AuthUsecase interface {
 
 func (u *UsecaseImpl) CreateUser(ctx context.Context, reqData *models.CreateUserRequest) (*models.User, error) {
 	if reqData == nil {
-		u.l.WarnCtx(ctx, "Ошибка при создании пользователя: данные пользователя пусты")
+		u.L.WarnCtx(ctx, "Ошибка при создании пользователя: данные пользователя пусты")
 		return nil, errors.New("данные пользователя пусты")
 	}
 	// todo: здесь же можно добавить проверку на уникальность email и тому подобное
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(reqData.Password), bcrypt.DefaultCost)
 	if err != nil {
-		u.l.Error("Ошибка при хешировании пароля", err)
+		u.L.Error("Ошибка при хешировании пароля", err)
 		return nil, fmt.Errorf("ошибка при хешировании пароля: %w", err)
 	}
 
@@ -41,21 +41,21 @@ func (u *UsecaseImpl) CreateUser(ctx context.Context, reqData *models.CreateUser
 		Role:     defaultUserRole,
 	}
 
-	return u.r.CreateUser(userData)
+	return u.R.CreateUser(userData)
 }
 
 func (u *UsecaseImpl) GetUserByEmail(email string) (*models.User, error) {
-	return u.r.GetUserByEmail(email)
+	return u.R.GetUserByEmail(email)
 }
 
 func (u *UsecaseImpl) CheckIsAdmin(id int) bool {
-	return u.r.CheckIsAdmin(id)
+	return u.R.CheckIsAdmin(id)
 }
 
 func (u *UsecaseImpl) Login(req models.LoginRequest) (*models.TokenResponse, error) {
 	user, err := u.GetUserByEmail(req.Email)
 	if err != nil {
-		u.l.Error("Ошибка: пользователь не найден", err)
+		u.L.Error("Ошибка: пользователь не найден", err)
 		return nil, errors.New("неверный email ")
 	}
 
@@ -67,13 +67,13 @@ func (u *UsecaseImpl) Login(req models.LoginRequest) (*models.TokenResponse, err
 	// Генерация токенов
 	accessToken, err := utils.GenerateAccessToken(user.Email)
 	if err != nil {
-		u.l.Error("Ошибка при генерации access токена", err)
+		u.L.Error("Ошибка при генерации access токена", err)
 		return nil, fmt.Errorf("не удалось создать access token: %w", err)
 	}
 
 	refreshToken, err := utils.GenerateRefreshToken(user.Email)
 	if err != nil {
-		u.l.Error("Ошибка при генерации refresh токена", err)
+		u.L.Error("Ошибка при генерации refresh токена", err)
 		return nil, fmt.Errorf("не удалось создать refresh token: %w", err)
 	}
 

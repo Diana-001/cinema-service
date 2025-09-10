@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"cinema-service/internal/configs/structures"
 	"errors"
+
 	"github.com/golang-jwt/jwt/v5"
 )
-
-var refreshSecret = []byte("super_secret_refresh")
 
 type RefreshClaims struct {
 	Email string `json:"email"`
@@ -14,7 +14,7 @@ type RefreshClaims struct {
 
 func ParseRefreshToken(tokenStr string) (*RefreshClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return refreshSecret, nil
+		return structures.RefreshJwtSecret, nil
 	})
 	if err != nil {
 		return nil, err
