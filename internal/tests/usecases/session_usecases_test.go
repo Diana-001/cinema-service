@@ -68,3 +68,22 @@ func TestGetSessionByID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, exceptedSession, session)
 }
+
+func TestDeleteSessionByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	mockRepo.EXPECT().DeleteSessionByID(13).Return(true, nil)
+
+	isDeleted, err := uc.DeleteSessionByID(13)
+
+	assert.NoError(t, err)
+	assert.Equal(t, true, isDeleted)
+
+}

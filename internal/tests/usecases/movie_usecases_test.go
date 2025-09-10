@@ -53,3 +53,22 @@ func TestGetMoviesByID(t *testing.T) {
 	assert.Equal(t, expectedMovies, movies)
 
 }
+
+func TestDeleteMoviesByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockRepository(ctrl)
+
+	uc := &usecases.UsecaseImpl{
+		R: mockRepo,
+	}
+
+	mockRepo.EXPECT().DeleteMovieByID(1).Return(true, nil)
+
+	isDeleted, err := uc.DeleteMovieByID(1)
+
+	assert.NoError(t, err)
+	assert.Equal(t, true, isDeleted)
+}
